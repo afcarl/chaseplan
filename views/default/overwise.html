@@ -1,0 +1,46 @@
+<html>
+<head>
+    <script src="{{=URL('static', 'js/jquery.js')}}"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['bar']});
+        google.charts.setOnLoadCallback(retrieve_matches);
+
+        function random_color() {
+            return '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+        }
+
+        function retrieve_matches() {
+            $.ajax({
+                url: "{{=URL('default', 'get_matches', extension='json')}}",
+                method: "GET"
+            }).done(function(response) {
+                $.each(response["matches"], function(key, value) {
+                    var match_id = key;
+                    var team1 = value["team1"];
+                    var team2 = value["team2"];
+                    var overs = value["overs"];
+                    var overs = $.map(value["overs"], function(val, i) {
+                                    return [[parseInt(i), val["score1"], val["wicket1"], val["score2"], val["wicket2"]]];
+                                });
+                    overs = [["Over", team1, {role: "annotation"}, team2, {role: "annotation"}]].concat(overs);
+                    var data = google.visualization.arrayToDataTable(overs);
+                    var options = {
+                        chart: {
+                            title: team1 + ' vs ' + team2,
+                            subtitle: 'MatchID: ' + match_id
+                        },
+                        colors: [random_color(), random_color()]
+                    };
+                    $('#all_graphs').append('<div id="' + match_id + '"></div>');
+                    var chart = new google.charts.Bar(document.getElementById(match_id));
+                    chart.draw(data, options);
+                });
+            });
+        };
+    </script>
+</head>
+<body>
+    <div id="all_graphs"></div>
+</body>
+</html>
