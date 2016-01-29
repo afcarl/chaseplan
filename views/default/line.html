@@ -12,7 +12,7 @@
 
         function retrieve_matches() {
             $.ajax({
-                url: "{{=URL('default', 'get_matches', extension='json')}}",
+                url: "{{=data_url}}",
                 method: "GET"
             }).done(function(response) {
                 $.each(response["matches"], function(key, value) {

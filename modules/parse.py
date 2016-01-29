@@ -63,7 +63,7 @@ def run(req_folder):
     return count
 
 # -----------------------------------------------------------------------------
-def get_match_json(req_folder):
+def get_match_json(req_folder, plot_type):
 
     global request_folder, matches_dir
 
@@ -93,6 +93,8 @@ def get_match_json(req_folder):
         # total = [TeamA total, TeamB total]
         total = [-1, -1]
         wickets = [-1, -1]
+        last_over_score = [0, 0]
+        rpo = [0, 0]
 
         for over_no, score1, score2 in overs:
 
@@ -116,8 +118,17 @@ def get_match_json(req_folder):
                 # Valid Score
                 flag[1] = 1
 
-            match_overs[over_no] = {"score1": total[0] if flag[0] else None,
-                                    "score2": total[1] if flag[1] else None,
+            for i in xrange(0, 2):
+                if flag[i] and plot_type == 1:
+                    rpo[i] = total[i]
+                elif flag[i] and plot_type == 2:
+                    rpo[i] = total[i] - last_over_score[i]
+                    last_over_score[i] = total[i]
+                else:
+                    rpo[i] = None
+
+            match_overs[over_no] = {"score1": rpo[0],
+                                    "score2": rpo[1],
                                     "wicket1": wickets[0] if flag[0] else None,
                                     "wicket2": wickets[1] if flag[1] else None}
 
