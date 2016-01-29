@@ -19,8 +19,6 @@ def index():
     return auth.wiki()
     """
     response.flash = T("Hello World")
-#    parse.get_match_json(request.folder)
-
     return dict(message=T('Welcome to web2py!'))
 
 def line():
@@ -29,8 +27,13 @@ def line():
 def overwise():
     return dict()
 
+def average():
+    APO = parse.get_average_json(request.folder)
+    return dict(APO=APO)
+
 def get_matches():
-    return dict(matches=parse.get_match_json(request.folder))
+    final_json = parse.get_match_json(request.folder)
+    return dict(matches=final_json)
 
 def user():
     """
