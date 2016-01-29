@@ -134,9 +134,11 @@ def get_match_json(req_folder, plot_type=1):
 
         final_json[match_id]["total1"] = total[0]
         final_json[match_id]["total2"] = total[1]
-
         if total[0] < CUTOFF:
             del final_json[match_id]
+        else:
+            if total[1] > total[0]:
+                print this_match["team1"], this_match["team2"]
 
     return final_json
 
@@ -207,7 +209,7 @@ def get_allwins_json(req_folder):
                 # Team2 WON OR ALL OUT
                 PO[int(over_no)] = 0 # 0? or put average score ? like 6 ?
 
-        if total[0] >= CUTOFF and total[1] >= total[0]:
+        if total[0] >= CUTOFF and total[1] > total[0]:
             for o in xrange(1, 51):
                 all_wins["overs"][o].append([match_id, team1, team2, PO[o]])
             all_wins["no_of_matches"] += 1
