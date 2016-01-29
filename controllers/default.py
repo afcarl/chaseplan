@@ -9,6 +9,7 @@
 #########################################################################
 
 import parse
+import links
 
 def index():
     """
@@ -18,21 +19,33 @@ def index():
     if you need a simple wiki simply replace the two lines below with:
     return auth.wiki()
     """
-    response.flash = T("Hello World")
-    return dict(message=T('Welcome to web2py!'))
+    plots = UL(LI(A("[Barchart] Total score per over", _href=links.get(1))), 
+               LI(A("[Barchart] Runs made per over", _href=links.get(2))),
+               LI(A("[Line] Total score per over", _href=links.get(3))),
+               LI(A("[Line] Runs made per over", _href=links.get(4))), 
+               LI(A("[Barchart] Average runs per over", _href=links.get(5))))
+
+    title = H1("Plots")
+    body = DIV(title, plots, _style="margin-left: 5em")
+    return dict(body=body)
 
 def line():
-    return dict()
+    data_url = URL("default", "get_matches", extension="json", \
+                            vars=dict(type=request.vars.get("type", "1")))
+    return dict(data_url=data_url)
 
 def overwise():
-    return dict()
+    data_url = URL("default", "get_matches", extension="json", \
+                            vars=dict(type=request.vars.get("type", "1")))
+    return dict(data_url=data_url)
 
 def average():
     APO = parse.get_average_json(request.folder)
     return dict(APO=APO)
 
 def get_matches():
-    final_json = parse.get_match_json(request.folder)
+    plot_type = request.vars.get("type", 1)
+    final_json = parse.get_match_json(request.folder, int(plot_type))
     return dict(matches=final_json)
 
 def user():
