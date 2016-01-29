@@ -1,4 +1,4 @@
-import os, csv
+import os, csv, math
 
 request_folder = None
 all_matches = []
@@ -90,46 +90,114 @@ def get_match_json(req_folder):
         this_match["overs"] = {}
         match_overs = this_match["overs"]
 
-        total1 = 0
-        total2 = 0
+        # total = [TeamA total, TeamB total]
+        total = [-1, -1]
+        wickets = [-1, -1]
 
         for over_no, score1, score2 in overs:
-            if over_no == "Over":
+
+            if over_no == "Over" or over_no == "-":
+                # Over no = "-" ?
                 continue
 
             tmp1 = score1.split("/")
             tmp2 = score2.split("/")
 
+            flag = [0, 0]
+
             if tmp1[0] != "nil":
-                total1 = int(tmp1[0])
+                total[0] = int(tmp1[0])
+                wickets[0] = int(tmp1[1])
+                # Valid Score
+                flag[0] = 1
             if tmp2[0] != "nil":
-                total2 = int(tmp2[0])
+                total[1] = int(tmp2[0])
+                wickets[1] = int(tmp2[1])
+                # Valid Score
+                flag[1] = 1
 
-            if len(tmp1) == 1 and len(tmp2) > 1:
-                match_overs[over_no] = {"score1": None,
-                                        "score2": int(tmp2[0]),
-                                        "wicket1": None,
-                                        "wicket2": int(tmp2[1])}
-            elif len(tmp2) == 1 and len(tmp1) > 1:
-                match_overs[over_no] = {"score1": int(tmp1[0]),
-                                        "score2": None,
-                                        "wicket1": int(tmp1[1]),
-                                        "wicket2": None}
-            elif len(tmp1) <= 1 and len(tmp2) <= 1:
-                match_overs[over_no] = {"score1": None,
-                                        "score2": None,
-                                        "wicket1": None,
-                                        "wicket2": None}
-            else:
-                match_overs[over_no] = {"score1": int(tmp1[0]),
-                                        "score2": int(tmp2[0]),
-                                        "wicket1": int(tmp1[1]),
-                                        "wicket2": int(tmp2[1])}
+            match_overs[over_no] = {"score1": total[0] if flag[0] else None,
+                                    "score2": total[1] if flag[1] else None,
+                                    "wicket1": wickets[0] if flag[0] else None,
+                                    "wicket2": wickets[1] if flag[1] else None}
 
-        final_json[match_id]["total1"] = total1
-        final_json[match_id]["total2"] = total2
+        final_json[match_id]["total1"] = total[0]
+        final_json[match_id]["total2"] = total[1]
 
-        if total1 < CUTOFF:
+        if total[0] < CUTOFF:
             del final_json[match_id]
 
     return final_json
+
+# -----------------------------------------------------------------------------
+def get_average_json(req_folder):
+
+    global request_folder, matches_dir
+
+    request_folder = req_folder
+    matches_dir = os.path.join(request_folder, "private", "csvs/")
+
+    for root, dirs, files in os.walk(matches_dir):
+        all_matches = files
+
+    populate_team_names()
+
+    # Average runs per over
+    APO = {"overs": dict(zip([i for i in xrange(1, 51)], [0]*50)),
+           "no_of_matches": 0}
+
+    for match in all_matches:
+
+        match_id = match[:-4]
+        f = open(matches_dir + match, "rb")
+        overs = csv.reader(f)
+
+        # total = [TeamA total, TeamB total]
+        total = [-1, -1]
+        wickets = [-1, -1]
+
+        # Per Over
+        PO = dict(zip([i for i in xrange(1, 51)], [0]*50))
+        last_over_score = 0
+
+        for over_no, score1, score2 in overs:
+
+            if over_no == "Over" or over_no == "-":
+                # Over no = "-" ?
+                continue
+
+            tmp1 = score1.split("/")
+            tmp2 = score2.split("/")
+
+            flag = [0, 0]
+
+            if tmp1[0] != "nil":
+                total[0] = int(tmp1[0])
+                wickets[0] = int(tmp1[1])
+                # Valid Score
+                flag[0] = 1
+            if tmp2[0] != "nil":
+                total[1] = int(tmp2[0])
+                wickets[1] = int(tmp2[1])
+                # Valid Score
+                flag[1] = 1
+
+            if flag[1]:
+                PO[int(over_no)] = total[1] - last_over_score
+                last_over_score = total[1]
+            else:
+                # Team2 WON OR ALL OUT
+                PO[int(over_no)] = 0 # 0? or put average score ? like 6 ?
+
+        # Average overwise score
+        if total[0] >= CUTOFF and total[1] >= total[0]:
+            # TEAM2 WON, CHASED HIGH TOTAL
+            for o in xrange(1, 51):
+                APO["overs"][o] += PO[o]
+            APO["no_of_matches"] += 1
+
+    # CALCULATE AVERAGE
+    for o in xrange(1, 51):
+        APO["overs"][o] = int(math.ceil(float(APO["overs"][o])/APO["no_of_matches"]))
+
+    return APO

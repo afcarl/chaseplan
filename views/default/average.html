@@ -1,0 +1,45 @@
+<html>
+<head>
+    <script src="{{=URL('static', 'js/jquery.js')}}"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['bar']});
+        google.charts.setOnLoadCallback(average_per_over);
+
+        function random_color() {
+            return '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+        }
+
+        function average_per_over() {
+            $.ajax({
+                url: "{{=URL('default', 'average', extension='json')}}",
+                method: "GET"
+            }).done(function(response) {
+                var APO = response['APO']['overs'];
+                var total = 0;
+                for(var over in APO) {
+                    total += APO[over];
+                }
+                var _data = $.map(APO, function(runs, over) {
+                                return [[over, runs]];
+                            });
+                _data = [['Over', 'Runs']].concat(_data);
+                var data = google.visualization.arrayToDataTable(_data);
+                var options = {
+                    chart: {
+                        title: 'Average runs per over',
+                        subtitle: 'Total: ' + total,
+                    },
+                    colors: [random_color()],
+                };
+                $('#all_graphs').append('<div id="average"></div>');
+                var chart = new google.charts.Bar(document.getElementById('average'));
+                chart.draw(data, options);
+            });
+        };
+    </script>
+</head>
+<body>
+    <div id="all_graphs"></div>
+</body>
+</html>
