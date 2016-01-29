@@ -9,7 +9,9 @@ def index():
                LI(A("[Line] Total score per over", _href=links.get(3))),
                LI(A("[Line] Runs made per over", _href=links.get(4))),
                LI(A("[Barchart] Average runs per over", _href=links.get(5))),
-               LI(A("[Line] Wickets per 5 over", _href=links.get(6))))
+               LI(A("[Line] Wickets per 5 over", _href=links.get(6))),
+               LI(A("[Line] Successful chases", _href=URL("default",
+                                                          "allwins"))))
 
     title = H1("Plots")
     body = DIV(title, plots, _style="margin-left: 5em")
