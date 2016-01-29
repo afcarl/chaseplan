@@ -1,0 +1,39 @@
+<html>
+<head>
+    <script src="{{=URL('static', 'js/jquery.js')}}"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['line']});
+        google.charts.setOnLoadCallback(retrieve_matches);
+
+        function random_color() {
+            return '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+        }
+
+        function retrieve_matches() {
+
+            var fow = JSON.parse("{{=fow}}");
+            var overs = [];
+            $.each(fow, function(i) {
+                overs.push([i + 1, fow[i]]);
+            });
+            var data = new google.visualization.DataTable();
+            data.addColumn('number', 'Overs');
+            data.addColumn('number', 'Wickets');
+
+            data.addRows(overs);
+
+            var options = {
+                width: 900,
+                height: 500,
+                colors: [random_color()]
+            };
+            var chart = new google.charts.Line(document.getElementById("graph"));
+            chart.draw(data, options);
+        };
+    </script>
+</head>
+<body>
+    <div id="graph"></div>
+</body>
+</html>

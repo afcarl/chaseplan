@@ -1,7 +1,7 @@
 from gluon.html import URL
 
 def get(plot_type):
-    
+
     # controller
     c = "default"
     # function
@@ -20,4 +20,6 @@ def get(plot_type):
         req_vars["type"] = 2
     elif plot_type == 5:
         f = "average"
+    elif plot_type == 6:
+        f = "fow"
     return URL(c, f, vars=req_vars)

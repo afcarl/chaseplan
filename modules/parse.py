@@ -4,7 +4,7 @@ request_folder = None
 all_matches = []
 team_mappings = {}
 matches_dir = None
-CUTOFF = 310
+CUTOFF = 280
 
 # -----------------------------------------------------------------------------
 def get_final_scores(records):
@@ -63,7 +63,7 @@ def run(req_folder):
     return count
 
 # -----------------------------------------------------------------------------
-def get_match_json(req_folder, plot_type):
+def get_match_json(req_folder, plot_type=1):
 
     global request_folder, matches_dir
 
