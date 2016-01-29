@@ -48,6 +48,9 @@ def get_matches():
     final_json = parse.get_match_json(request.folder, int(plot_type))
     return dict(matches=final_json)
 
+def allwins():
+    return dict(allwins=parse.get_allwins_json(request.folder))
+
 def user():
     """
     exposes:
