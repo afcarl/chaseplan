@@ -141,6 +141,80 @@ def get_match_json(req_folder, plot_type):
     return final_json
 
 # -----------------------------------------------------------------------------
+def get_allwins_json(req_folder):
+
+    global request_folder, matches_dir
+
+    request_folder = req_folder
+    matches_dir = os.path.join(request_folder, "private", "csvs/")
+
+    for root, dirs, files in os.walk(matches_dir):
+        all_matches = files
+
+    # winning matches, team 2 chased a high total
+
+    populate_team_names()
+
+    # Runs per over
+    all_wins = {"overs": dict(zip([i for i in xrange(1, 51)], [None]*50)),
+                "no_of_matches": 0}
+
+    for i in all_wins["overs"]:
+        all_wins["overs"][i] = []
+
+    for match in all_matches:
+
+        match_id = match[:-4]
+        f = open(matches_dir + match, "rb")
+        overs = csv.reader(f)
+
+        team1 = team_mappings[match_id][0]
+        team2 = team_mappings[match_id][1]
+
+        PO = dict(zip([i for i in xrange(1, 51)], [0]*50))
+
+        # total = [TeamA total, TeamB total]
+        total = [-1, -1]
+        wickets = [-1, -1]
+        last_over_score = [0, 0]
+
+        for over_no, score1, score2 in overs:
+
+            if over_no == "Over" or over_no == "-":
+                # Over no = "-" ?
+                continue
+
+            tmp1 = score1.split("/")
+            tmp2 = score2.split("/")
+
+            flag = [0, 0]
+
+            if tmp1[0] != "nil":
+                total[0] = int(tmp1[0])
+                wickets[0] = int(tmp1[1])
+                # Valid Score
+                flag[0] = 1
+            if tmp2[0] != "nil":
+                total[1] = int(tmp2[0])
+                wickets[1] = int(tmp2[1])
+                # Valid Score
+                flag[1] = 1
+
+            if flag[1]:
+                PO[int(over_no)] = total[1] - last_over_score[1]
+                last_over_score[1] = total[1]
+            else:
+                # Team2 WON OR ALL OUT
+                PO[int(over_no)] = 0 # 0? or put average score ? like 6 ?
+
+        if total[0] >= CUTOFF and total[1] >= total[0]:
+            for o in xrange(1, 51):
+                all_wins["overs"][o].append([match_id, team1, team2, PO[o]])
+            all_wins["no_of_matches"] += 1
+
+    return all_wins
+
+# -----------------------------------------------------------------------------
 def get_average_json(req_folder):
 
     global request_folder, matches_dir

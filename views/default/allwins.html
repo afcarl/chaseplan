@@ -1,0 +1,58 @@
+<html>
+<head>
+    <script src="{{=URL('static', 'js/jquery.js')}}"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['bar']});
+        google.charts.setOnLoadCallback(plot_graph);
+
+        function random_color() {
+            return '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+        }
+
+        function plot_graph() {
+            $.ajax({
+                url: "{{=URL('default', 'allwins', extension='json')}}",
+                method: "GET"
+            }).done(function(response) {
+                // runs per over
+                // {"1": [match_id, team1, team2, runs], "2": [...]}
+                var rpo = response['allwins']['overs'];
+                var _data = $.map(rpo, function(runs, over) {
+                                var m_arr = [parseInt(over)];
+                                var r_arr = []
+                                for(var i=0; i<runs.length; i++) {
+                                    r_arr.push(runs[i][3]);
+                                }
+                                return [m_arr.concat(r_arr)];
+                            });
+                var teams = [];
+                for(var i=0;i<rpo['1'].length;i++) {
+                    teams.push(rpo['1'][i][1] + ' vs ' + rpo['2'][i][2]);
+                }
+                _data = [['Over'].concat(teams)].concat(_data);
+                var colors = [];
+                for(var i=0; i<teams.length; i++) {
+                    colors.push(random_color());
+                }
+                var data = google.visualization.arrayToDataTable(_data);
+                var options = {
+                    chart: {
+                        title: 'Successful chases',
+                        subtitle: '',
+                    },
+                    width: 1300,
+                    height: 500,
+                    colors: colors,
+                };
+                $('#all_graphs').append('<div id="all_wins"></div>');
+                var chart = new google.charts.Bar(document.getElementById('all_wins'));
+                chart.draw(data, options);
+            });
+        };
+    </script>
+</head>
+<body>
+    <div id="all_graphs"></div>
+</body>
+</html>
