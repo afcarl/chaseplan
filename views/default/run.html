@@ -1,0 +1,68 @@
+{{extend 'layout.html'}}
+<script>
+    $(document).ready(function() {
+        $('select').material_select();
+    });
+
+</script>
+<h3>ChasePlan</h3>
+<form action="" method="POST">
+<div class="row">
+    <div class="col s12">
+        <div class="row">
+           <div class="input-field col offset-s2 s4">
+               <select class="browser-default" name="teama">
+                   <option value="" disabled selected>Team A</option>
+                   <option value="Australia">Australia</option>
+                   <option value="Bangladesh">Bangladesh</option>
+                   <option value="England">England</option>
+                   <option value="India">India</option>
+                   <option value="NewZealand">New Zealand</option>
+                   <option value="Pakistan">Pakistan</option>
+                   <option value="SouthAfrica">South Africa</option>
+                   <option value="SriLanka">Sri Lanka</option>
+                   <option value="WestIndies">West Indies</option>
+                   <option value="Zimbabwe">Zimbabwe</option>
+               </select>
+           </div>
+           <div class="input-field col s4">
+               <select class="browser-default" name="teamb">
+                   <option value="" disabled selected>Team B</option>
+                   <option value="Australia">Australia</option>
+                   <option value="Bangladesh">Bangladesh</option>
+                   <option value="England">England</option>
+                   <option value="India">India</option>
+                   <option value="NewZealand">New Zealand</option>
+                   <option value="Pakistan">Pakistan</option>
+                   <option value="SouthAfrica">South Africa</option>
+                   <option value="SriLanka">Sri Lanka</option>
+                   <option value="WestIndies">West Indies</option>
+                   <option value="Zimbabwe">Zimbabwe</option>
+               </select>
+           </div>
+        </div>
+        <div class="row">
+            <div class="input-field col offset-s3 s6">
+                <input id="target" name="target" type="number">
+                <label for="target">Target</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s4">
+                <input id="runs" name="runs" type="number">
+                <label for="runs">Runs</label>
+            </div>
+            <div class="input-field col s4">
+                <input id="wickets" name="wickets" type="number">
+                <label for="wickets">Wickets</label>
+            </div>
+            <div class="input-field col s4">
+                <input id="overs" name="overs" type="number">
+                <label for="overs">Overs</label>
+            </div>
+        </div>
+        <div class="row">
+            <input type="submit" />
+        </div>
+     </div>
+</form>

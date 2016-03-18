@@ -13,16 +13,14 @@
           initial-scale = 1.0 retains dimensions instead of zooming out if page height > device height
           user-scalable = yes allows the user to zoom in -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{=response.title or request.application}}</title>
     <!-- http://dev.w3.org/html5/markup/meta.name.html -->
     <meta name="application-name" content="{{=request.application}}">
     <!-- Speaking of Google, don't forget to set your site up:
          http://google.com/webmasters -->
     <meta name="google-site-verification" content="">
     <!-- include stylesheets -->
-    <link rel="stylesheet" href="{{=URL('static','css/bootstrap.min.css')}}"/>
-    <link rel="stylesheet" href="{{=URL('static','css/bootstrap-theme.min.css')}}"/>
-    <link rel="stylesheet" href="{{=URL('static','css/web2py-bootstrap3.css')}}"/>
+    <link rel="stylesheet" href="{{=URL('static','materialize/css/materialize.css')}}"/>
+    <link rel="stylesheet" href="{{=URL('static','fa/css/font-awesome.min.css')}}"/>
     <link rel="shortcut icon" href="{{=URL('static','images/favicon.ico')}}" type="image/x-icon">
     <link rel="apple-touch-icon" href="{{=URL('static','images/favicon.png')}}">
     <!-- All JavaScript at the bottom, except for Modernizr which enables
@@ -44,19 +42,123 @@
     middle_column = {0: mc0, 1: mc1, 2: mc2}[
     (left_sidebar_enabled and 1 or 0)+(right_sidebar_enabled and 1 or 0)]
     }}
+    <style>
+        input.form-control {
+            width: 50%;
+            text-align:  center;
+        }
+        .pagination li.active{
+            background-color: #259b24;
+        }
+        #welcome {
+            min-width: 180px;
+        }
+        #welcome > li > a {
+            color: #536dfe;
+        }
+        body {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            cursor: default;
+        }
+        .Site {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+        .Site-content {
+            flex: 1;
+        }
+        iframe {
+            visibility: block;
+        }
+    </style>
   </head>
-  <body>
-    <div class="flash alert alert-dismissable">{{=response.flash or ''}}</div>
-    {{if response.google_analytics_id:}}
+  <body class="center Site">
+    <!--[if lt IE 8]><p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p><![endif]-->
+    <!-- Navbar ======================================= -->
+    <div class="flash alert alert-dismissable" style="display: none;">{{=response.flash or ''}}</div>
+    <header>
+    <ul id="welcome" class="dropdown-content" style="min-width: 190px; color: #536dfe;">
+    </ul>
+    <nav style="background-color: #536dfe">
+    <div class="nav-wrapper">
+        <a href="{{=URL('default', 'run')}}">
+            <img src="{{=URL('static', 'images/ball.png')}}" style="position: absolute; left: 0px; height: 60px; width: 60px; padding: 5px;"/>
+        </a>
+        <div class="center">
+           <strong>ChasePlan</strong>
+        </div>
+    </div>
+    </nav>
+    </header>
+    <!-- Masthead ===================================== -->
+    {{block header}}
+    {{end}}
+    <!-- Main ========================================= -->
+    <!-- Begin page content -->
+    <main class="Site-content">
+    <div class="container-fluid">
+      {{if left_sidebar_enabled:}}
+        <div class="col-md-3 left-sidebar">
+            {{block left_sidebar}}
+            <h3>Left Sidebar</h3>
+            <p></p>
+            {{end}}
+        </div>
+      {{pass}}
+
+      <div class="{{=middle_column}}">
+        {{block center}}
+        {{include}}
+        {{end}}
+      </div>
+
+      {{if right_sidebar_enabled:}}
+        <div class="col-md-3">
+            {{block right_sidebar}}
+            <h3>Right Sidebar</h3>
+            <p></p>
+            {{end}}
+        </div>
+      {{pass}}
+
+    </div>
+    </main>
+    <!-- The javascript =============================== -->
+    <script src="{{=URL('static','materialize/js/materialize.js')}}"></script>
+    <script src="{{=URL('static','js/web2py-bootstrap3.js')}}"></script>
+    {{block page_js}}{{end page_js}}
     <!-- Analytics ==================================== -->
-    <script src="{{=URL('static','js/analytics.min.js')}}"></script>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-      analytics.initialize({
-      'Google Analytics':{trackingId:'{{=response.google_analytics_id}}'}
-      });
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+           m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+             })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-71263752-1', 'auto');
+      ga('send', 'pageview');
+
     </script>
-    {{pass}}
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $('.collapsible').collapsible({
+            accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+        });
+        $('select').material_select();
+        $(document).ready(function(){
+            $('.tooltipped').tooltip({delay: 50});
+        });
+        // Remove focus from any focused element
+        if (document.activeElement) {
+            document.activeElement.blur();
+        }
+    });
+    </script>
     <!-- Share ============================y============ -->
   </body>
 </html>
