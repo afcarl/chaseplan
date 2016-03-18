@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import parse
 import links
+import os, csv
+import math
+import cPickle as pickle
 
 # -----------------------------------------------------------------------------
 def index():
@@ -80,7 +83,37 @@ def fow():
 
 # -----------------------------------------------------------------------------
 def run():
-    print request.post_vars
+    data = {}
+    if request.post_vars:
+        overs = float(request.post_vars.overs)
+        teamA = request.post_vars.teama
+        teamB = request.post_vars.teamb
+        target = int(request.post_vars.target)
+        wickets = int(request.post_vars.wickets)
+        runs = int(request.post_vars.runs)
+        overs += 5
+        with open(os.path.join(request.folder,
+                               "private",
+                               "jayadevantable.csv"), "rb") as csvfile:
+            row = list(csv.reader(csvfile, delimiter=','))
+            for i in row[1:]:
+                data[int(i[0])] = {"target": float(i[1]),
+                                   "normal": i[2:]}
+        # Get percentage
+        percentage = ((overs * 1.0)/50.0) * 100.0
+        if percentage >= math.floor(percentage) + 0.5:
+            percentage = math.ceil(float(percentage))
+
+        NS = float(data[int(percentage)]["normal"][wickets])/100.0
+        parscore = math.ceil(NS * target)
+        print parscore
+        bowling_stats = pickle.load(
+                            open(os.path.join(
+                                    request.folder,
+                                    "private",
+                                    "bowling/teams_dict_2010.p"), "rb"))
+        print bowling_stats["India"]
+        
     return dict()
 
 # -----------------------------------------------------------------------------
