@@ -97,7 +97,7 @@ def run():
     teamA = ""
     teamB = ""
     g1 = g2 = 0
-    t1 = t2 = 0
+    t1 = t2 = 1
 
     if request.post_vars:
         overs = float(request.post_vars.overs)
@@ -192,6 +192,8 @@ def run():
                     g1 += 1
                 t1 += 1
                 bowlers1.append((i, cat[0], cat[1]))
+        if len(part2) == 0:
+            t2 = 1
         for i in part2:
             cat = parse.get_bowler_class(team_data, nn, i, teamA, request.folder)
             if cat == -1:
