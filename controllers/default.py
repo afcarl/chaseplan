@@ -4,6 +4,7 @@ import links
 import os, csv
 import math
 import cPickle as pickle
+import operator
 
 # -----------------------------------------------------------------------------
 def index():
@@ -91,7 +92,12 @@ def run():
         target = int(request.post_vars.target)
         wickets = int(request.post_vars.wickets)
         runs = int(request.post_vars.runs)
+        # Save over, find out possible upcoming bowlers
+        _overs = int(math.ceil(overs))
+        # Increase the number of overs to get the expected par score
         overs += 5
+        overs = min(overs, 50.0)
+
         with open(os.path.join(request.folder,
                                "private",
                                "jayadevantable.csv"), "rb") as csvfile:
@@ -112,8 +118,43 @@ def run():
                                     request.folder,
                                     "private",
                                     "bowling/teams_dict_2010.p"), "rb"))
-        print bowling_stats["India"]
-        
+        if _overs < 45:
+            part1 = []
+            part2 = []
+
+            for ono in xrange(_overs, min(_overs + 5, 50)):
+                # Sort the bowlers by freqency
+                sb = sorted(bowling_stats[teamA][ono].items(),
+                            key=operator.itemgetter(1),
+                            reverse=True)
+                sb = sb[:5]
+                for bowler in sb:
+                    part1.append(bowler[0])
+            part1 = list(set(part1))
+
+            for ono in xrange(_overs + 5, min(_overs + 10, 50)):
+                # Sort the bowlers by freqency
+                sb = sorted(bowling_stats[teamA][ono].items(),
+                            key=operator.itemgetter(1),
+                            reverse=True)
+                sb = sb[:5]
+                for bowler in sb:
+                    part2.append(bowler[0])
+            part2 = list(set(part2))
+
+        else:
+            part1 = []
+            part2 = []
+            for ono in xrange(_overs, min(_overs + 5, 50)):
+                # Sort the bowlers by freqency
+                sb = sorted(bowling_stats[teamA][ono].items(),
+                            key=operator.itemgetter(1),
+                            reverse=True)
+                sb = sb[:5]
+                for bowler in sb:
+                    part1.append(bowler[0])
+            part1 = list(set(part1))
+
     return dict()
 
 # -----------------------------------------------------------------------------
