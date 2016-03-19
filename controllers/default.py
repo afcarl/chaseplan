@@ -87,6 +87,18 @@ def fow():
 def run():
 
     data = {}
+    parscore = -1
+    bowlers1 = []
+    bowlers2 = []
+    _overs = -1
+    runs = -1
+    target = -1
+    wickets = -1
+    teamA = ""
+    teamB = ""
+    g1 = g2 = 0
+    t1 = t2 = 0
+
     if request.post_vars:
         overs = float(request.post_vars.overs)
         teamA = request.post_vars.teama
@@ -167,22 +179,41 @@ def run():
             session["team_data"] = team_data
             session["nn"] = nn
 
-        bowlers1 = bowlers2 = []
+        bowlers1 = []
+        bowlers2 = []
+        g1 = t1 = 0
+        g2 = t2 = 0
         for i in part1:
             cat = parse.get_bowler_class(team_data, nn, i, teamA, request.folder)
             if cat == -1:
                 bowlers1.append((i, -1, -1))
             else:
+                if cat[0] == "Good":
+                    g1 += 1
+                t1 += 1
                 bowlers1.append((i, cat[0], cat[1]))
         for i in part2:
             cat = parse.get_bowler_class(team_data, nn, i, teamA, request.folder)
             if cat == -1:
                 bowlers2.append((i, -1, -1))
             else:
+                if cat[0] == "Good":
+                    g2 += 1
+                t2 += 1
                 bowlers2.append((i, cat[0], cat[1]))
         print bowlers1, bowlers2
 
-    return dict()
+    return dict(runs=runs,
+                overs=_overs,
+                target=target,
+                wickets=wickets,
+                teamA = teamA,
+                teamB = teamB,
+                parscore=parscore,
+                bowlers1=bowlers1,
+                bowlers2=bowlers2,
+                p1=g1*100.0/t1,
+                p2=g2*100.0/t2)
 
 # -----------------------------------------------------------------------------
 def user():

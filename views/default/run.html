@@ -89,11 +89,29 @@
       <div class="collapsible-header" id="match-output"><i class="fa fa-angle-right"></i><strong>Prediction</strong></div>
       <div class="collapsible-body">
         <div class="row">
-        <div class="col s12 m6">
+
+        <div class="col offset-s3 s6">
           <div class="card blue-grey darken-1">
             <div class="card-content white-text">
-              <span class="card-title">Parscore</span>
-              <p>{{=parscore}}</p>
+              <span class="card-title">Current Stats</span>
+              <table class="my-table">
+                <tr>
+                    <th>Team A</th>
+                    <th>Team B</th>
+                    <th>Target</th>
+                    <th>Runs</th>
+                    <th>Wickets</th>
+                    <th>Overs</th>
+                </tr>
+                <tr>
+                    <td>{{=teamA}}</td>
+                    <td>{{=teamB}}</td>
+                    <td>{{=target}}</td>
+                    <td>{{=runs}}</td>
+                    <td>{{=wickets}}</td>
+                    <td>{{=overs}}</td>
+                </tr>
+              </table>
             </div>
             <div class="card-action">
             </div>
@@ -101,11 +119,40 @@
         </div>
       </div>
         <div class="row">
-        <div class="col s12 m6">
+        <div class="col offset-s3 s6">
           <div class="card blue-grey darken-1">
             <div class="card-content white-text">
-              <span class="card-title">Parscore</span>
-              <p>{{=parscore}}</p>
+              <span class="card-title">Predicted Score</span>
+              <p>Score {{=int(parscore)}} in next five overs.</p>
+            </div>
+            <div class="card-action">
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <div class="row">
+        <div class="col offset-s3 s6">
+          <div class="card blue-grey darken-1">
+            <div class="card-content white-text">
+              <span class="card-title">Bowling Attack</span>
+              <div><strong>Predicted attack for upcoming 5 overs </strong></div>
+              <div>Bowling strength: {{=p1}}% </div>
+              <br/>
+              {{for i in bowlers1:}}
+                {{if i[1] != -1:}}
+                    <div>{{=i[0]}} ({{=i[1]}})</div>
+                {{pass}}
+                {{pass}}
+              <hr>
+              <div><strong>Predicted attack for next 5 overs </strong></div>
+              <div>Bowling strength: {{=p2}}% </div>
+              <br/>
+              {{for i in bowlers2:}}
+                {{if i[1] != -1:}}
+                    <div>{{=i[0]}} ({{=i[1]}})</div>
+                {{pass}}
+                {{pass}}
             </div>
             <div class="card-action">
             </div>
