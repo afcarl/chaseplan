@@ -2,10 +2,25 @@
 <script>
     $(document).ready(function() {
         $('select').material_select();
+        $('.collapsible').collapsible({
+          accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+        });
+        var parscore = '{{=parscore}}';
+        if (parscore != -1) {
+            $('#match-output')[0].setAttribute('class', 'collapsible-header active');
+        } else {
+            $('#match-input')[0].setAttribute('class', 'collapsible-header active');
+        }
     });
 
 </script>
 <h3>ChasePlan</h3>
+<div class="container">
+  <ul class="collapsible popout" data-collapsible="accordion">
+    <li>
+      <div class="collapsible-header" id="match-input"><i class="fa fa-pencil-square-o"></i><strong>Match Statistics</strong></div>
+      <div class="collapsible-body">
+<div class="container">
 <form action="" method="POST">
 <div class="row">
     <div class="col s12">
@@ -62,7 +77,43 @@
             </div>
         </div>
         <div class="row">
-            <input type="submit" />
+            <input id="match-submit" type="submit"/>
         </div>
-     </div>
+    </div>
+</div>
 </form>
+</div>
+</div>
+    </li>
+    <li>
+      <div class="collapsible-header" id="match-output"><i class="fa fa-angle-right"></i><strong>Prediction</strong></div>
+      <div class="collapsible-body">
+        <div class="row">
+        <div class="col s12 m6">
+          <div class="card blue-grey darken-1">
+            <div class="card-content white-text">
+              <span class="card-title">Parscore</span>
+              <p>{{=parscore}}</p>
+            </div>
+            <div class="card-action">
+            </div>
+          </div>
+        </div>
+      </div>
+        <div class="row">
+        <div class="col s12 m6">
+          <div class="card blue-grey darken-1">
+            <div class="card-content white-text">
+              <span class="card-title">Parscore</span>
+              <p>{{=parscore}}</p>
+            </div>
+            <div class="card-action">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      </div>
+    </li>
+  </ul>
+</div>
