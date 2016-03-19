@@ -1,10 +1,122 @@
 import os, csv, math
+import pandas as pd
+import sys
+from sknn.mlp import Classifier, Layer
+Teams = ['Australia', 'Bangladesh', 'England', 'India', 'NewZealand', 'Pakistan', 'SouthAfrica', 'SriLanka', 'WestIndies', 'Zimbabwe']
 
 request_folder = None
 all_matches = []
 team_mappings = {}
 matches_dir = None
 CUTOFF = 280
+
+# -----------------------------------------------------------------------------
+def train_data(request_folder):
+    print "Training data..."
+    currentCat = "Bowling"
+    teamData = {}
+
+    for team in Teams:
+        # for category in Category:
+        currentTeam = team
+        currentCSVPath = "neuralnet/Data/" + currentTeam + "/" + currentCat + ".csv"
+        currentCSVPath = os.path.join(request_folder,
+                                      "private",
+                                      currentCSVPath)
+
+        currentData = pd.read_csv(currentCSVPath)
+        manualRating = []
+
+        for player in range(0, currentData['Mat'].__len__()):
+            if currentCat == "Bowling":
+                if currentData['Overs'][player] == '-':
+                    currentData['Overs'][player] = 0
+                if currentData['Mdns'][player] == '-':
+                    currentData['Mdns'][player] = 0
+                if currentData['Wkts'][player] == '-':
+                    currentData['Wkts'][player] = 0
+                if currentData['Econ'][player] == '-':
+                    currentData['Econ'][player] = 0
+                if currentData['4'][player] == '-':
+                    currentData['4'][player] = 0
+                if currentData['5'][player] == '-':
+                    currentData['5'][player] = 0
+                if currentData['BBI'][player] == '-':
+                    currentData['BBI'][player] = 0
+            if currentData['Mat'][player] == '-':
+                currentData['Mat'][player] = 0
+            if currentData['Ave'][player] == '-':
+                currentData['Ave'][player] = 0
+            if currentData['SR'][player] == '-':
+                currentData['SR'][player] = 0
+            if currentData['Inns'][player] == '-':
+                currentData['Inns'][player] = 0
+            if currentData['Runs'][player] == '-':
+                currentData['Runs'][player] = 0
+
+            if int(currentData['Wkts'][player]) >= 70 or float(currentData['Overs'][player]) >= 400:
+                manualRating.append(2)
+            elif (int(currentData['Wkts'][player]) < 70 and int(currentData['Wkts'][player]) >= 40) or (float(currentData['Overs'][player]) >= 150 and float(currentData['Overs'][player]) < 400):
+                manualRating.append(1)
+            else:
+                manualRating.append(0)
+
+        currentData['Rating'] = manualRating
+
+        currentStatus = []
+        lastPlayed = []
+
+        for player in currentData['Span']:
+            if player[-1] == '5':
+                currentStatus.append('Yes')
+                lastPlayed.append('Active')
+            else:
+                currentStatus.append('No')
+                lastPlayed.append(player.split('-')[1])
+
+        currentData['LastPlayed'] = lastPlayed
+
+        teamData[team] = currentData
+
+    nn = Classifier(layers=[Layer("Rectifier", units=100, pieces=6),
+                            Layer("Softmax")],
+                    learning_rate=0.05,
+                    learning_rule='adadelta',
+                    n_iter=1000)
+
+    print "Data trained"
+    return teamData, nn
+
+def get_bowler_class(teamData, nn, bowler, test_team, request_folder):
+
+    print "Running on test..."
+    trainData = None
+
+    for team in teamData:
+        if trainData is None:
+            trainData = teamData[team]
+        elif team != test_team:
+            frames = [trainData, teamData[team]]
+    testData = teamData[test_team].as_matrix(['Runs', 'Inns', 'Ave', 'SR'])
+
+    y = trainData['Rating'].as_matrix()
+    trainData = trainData.as_matrix(['Runs', 'Inns', 'Ave', 'SR'])
+    nn.fit(trainData, y)
+
+    x = nn.predict(testData)
+    score = nn.score(testData, teamData[test_team]['Rating'].as_matrix())
+    for player in xrange(0, x.__len__()):
+        if teamData[test_team]['Player'][player] == bowler:
+            tmp = str(x[player])[1:-1]
+            if tmp == "0":
+                tmp = "Bad"
+            elif tmp == "1":
+                tmp = "Average"
+            else:
+                tmp = "Good"
+            return (tmp, teamData[test_team]['LastPlayed'][player])
+
+    return -1
 
 # -----------------------------------------------------------------------------
 def get_final_scores(records):

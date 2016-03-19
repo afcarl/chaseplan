@@ -4,13 +4,13 @@ from sknn.mlp import Classifier, Layer
 
 Teams = ['Australia', 'Bangladesh', 'England', 'India', 'NewZealand', 'Pakistan', 'SouthAfrica', 'SriLanka', 'WestIndies', 'Zimbabwe']
 Category = ['Batting', 'Bowling']
-currentCat = Category[int(sys.argv[2]) - 1]
+currentCat = "Bowling"
 
 test_team = sys.argv[1]
 teamData = {}
 
 for team in Teams:
-    #for category in Category:
+    # for category in Category:
     currentTeam = team
     currentCSVPath = '../' + 'Data/' + currentTeam + '/' + currentCat + '.csv'
 
@@ -83,23 +83,17 @@ for team in Teams:
             currentStatus.append('No')
             lastPlayed.append(player.split('-')[1])
 
-    #currentData['CurrentlyPlaying'] = currentStatus
     currentData['LastPlayed'] = lastPlayed
 
     teamData[team] = currentData
-    # if result is None:
-    #     result = currentData
-    # else:
-    #     frames = [result, currentData]
-    #     result = pd.concat(frames)
 
 nn = Classifier(
     layers=[
         Layer("Rectifier", units=100, pieces=6),
         Layer("Softmax")],
-    learning_rate=0.002,
+    learning_rate=0.05,
     learning_rule='adadelta',
-    n_iter=100)
+    n_iter=1000)
 
 trainData = None
 
@@ -110,16 +104,13 @@ for team in teamData:
         frames = [trainData, teamData[team]]
 
 testData = teamData[test_team].as_matrix(['Runs', 'Inns', 'Ave', 'SR'])
-#testData = teamData["Australia"].as_matrix(['Wkts', 'Inns', 'Ave', 'Overs', 'SR', 'Mdns', 'Econ'])
 
 y = trainData['Rating'].as_matrix()
 trainData = trainData.as_matrix(['Runs', 'Inns', 'Ave', 'SR'])
-#trainData = trainData.as_matrix(['Wkts', 'Inns', 'Ave', 'Overs', 'SR', 'Mdns', 'Econ'])
 
 nn.fit(trainData, y)
+
 x = nn.predict(testData)
 score = nn.score(testData, teamData[test_team]['Rating'].as_matrix())
 for player in range(0, x.__len__()):
     print str(x[player])+": "+teamData[test_team]['Player'][player]+": "+str(teamData[test_team]['LastPlayed'][player])
-
-print score

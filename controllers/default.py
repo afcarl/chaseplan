@@ -8,6 +8,7 @@ import operator
 
 # -----------------------------------------------------------------------------
 def index():
+    redirect(URL("default", "run"))
     plots = UL(LI(A("[Barchart] Total score per over", _href=links.get(1))),
                LI(A("[Barchart] Runs made per over", _href=links.get(2))),
                LI(A("[Line] Total score per over", _href=links.get(3))),
@@ -84,6 +85,7 @@ def fow():
 
 # -----------------------------------------------------------------------------
 def run():
+
     data = {}
     if request.post_vars:
         overs = float(request.post_vars.overs)
@@ -111,8 +113,8 @@ def run():
             percentage = math.ceil(float(percentage))
 
         NS = float(data[int(percentage)]["normal"][wickets])/100.0
+
         parscore = math.ceil(NS * target)
-        print parscore
         bowling_stats = pickle.load(
                             open(os.path.join(
                                     request.folder,
@@ -154,6 +156,31 @@ def run():
                 for bowler in sb:
                     part1.append(bowler[0])
             part1 = list(set(part1))
+
+        team_data = nn = None
+        if session["team_data"]:
+            team_data = session["team_data"]
+        if session["nn"]:
+            nn = session["nn"]
+        if team_data is None or nn is None:
+            team_data, nn = parse.train_data(request.folder)
+            session["team_data"] = team_data
+            session["nn"] = nn
+
+        bowlers1 = bowlers2 = []
+        for i in part1:
+            cat = parse.get_bowler_class(team_data, nn, i, teamA, request.folder)
+            if cat == -1:
+                bowlers1.append((i, -1, -1))
+            else:
+                bowlers1.append((i, cat[0], cat[1]))
+        for i in part2:
+            cat = parse.get_bowler_class(team_data, nn, i, teamA, request.folder)
+            if cat == -1:
+                bowlers2.append((i, -1, -1))
+            else:
+                bowlers2.append((i, cat[0], cat[1]))
+        print bowlers1, bowlers2
 
     return dict()
 
